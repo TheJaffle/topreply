@@ -1,6 +1,9 @@
 import type { User } from "@supabase/supabase-js";
 import { deleteSelectedUsers } from "@/app/utilisateurs/actions";
-import { getUserProfilesByAuthUserIds } from "@/lib/repositories/userProfiles";
+import {
+  getUserProfilesByAuthUserIds,
+  type UserProfileRecord
+} from "@/lib/repositories/userProfiles";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export default async function UtilisateursPage() {
@@ -17,7 +20,7 @@ export default async function UtilisateursPage() {
   const authUserIds = users.map((user: User) => user.id);
   const profiles = await getUserProfilesByAuthUserIds(authUserIds);
   const profilesByAuthUserId = new Map(
-    profiles.map((profile) => [profile.authUserId, profile] as const)
+    profiles.map((profile: UserProfileRecord) => [profile.authUserId, profile] as const)
   );
 
   return (

@@ -11,7 +11,7 @@ export default function CategoryFilters({
 }: CategoryFiltersProps) {
   return (
     <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0">
-      {categories.map((category) => {
+      {categories.map((category: string) => {
         const isSelected = selectedCategory === category;
 
         return (

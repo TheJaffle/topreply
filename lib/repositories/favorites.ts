@@ -81,7 +81,7 @@ export async function getFavoriteSituationIds(
     }
   });
 
-  return favorites.map((favorite) => favorite.situationId);
+  return favorites.map((favorite: { situationId: string }) => favorite.situationId);
 }
 
 export async function getFavoriteSituationsByAuthUserId(

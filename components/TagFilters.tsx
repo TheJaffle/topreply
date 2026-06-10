@@ -11,7 +11,7 @@ export default function TagFilters({
 }: TagFiltersProps) {
   return (
     <div className="flex flex-wrap gap-2">
-      {tags.map((tag) => {
+      {tags.map((tag: string) => {
         const isSelected = selectedTags.includes(tag);
 
         return (

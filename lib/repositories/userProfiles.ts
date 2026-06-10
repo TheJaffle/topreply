@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 type EnsureUserProfileInput = Readonly<{
@@ -6,6 +7,8 @@ type EnsureUserProfileInput = Readonly<{
   displayName?: string | null;
   metier: string;
 }>;
+
+export type UserProfileRecord = Prisma.UserProfileGetPayload<Record<string, never>>;
 
 export async function getUserProfileByAuthUserId(authUserId: string) {
   return prisma.userProfile.findUnique({
@@ -22,7 +25,7 @@ export function isUserProfileComplete(profile: {
 
 export async function getUserProfilesByAuthUserIds(authUserIds: string[]) {
   if (authUserIds.length === 0) {
-    return [];
+    return [] as UserProfileRecord[];
   }
 
   return prisma.userProfile.findMany({
@@ -31,7 +34,7 @@ export async function getUserProfilesByAuthUserIds(authUserIds: string[]) {
         in: authUserIds
       }
     }
-  });
+  }) as Promise<UserProfileRecord[]>;
 }
 
 export async function ensureUserProfile({

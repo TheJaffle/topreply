@@ -31,10 +31,12 @@ function getSearchableText(situation: SituationWithVariantes) {
       situation.metier,
       situation.categorie,
       ...situation.tags,
-      ...situation.variantes.flatMap((variante) => [
+      ...situation.variantes.flatMap(
+        (variante: SituationWithVariantes["variantes"][number]) => [
         variante.label,
         variante.contenu
-      ])
+        ]
+      )
     ].join(" ")
   );
 }
@@ -65,21 +67,34 @@ export default function BibliothequeClient({
   const normalizedQuery = normalizeText(deferredQuery);
 
   const metierSituations = useMemo(
-    () => situations.filter((situation) => situation.metier === activeMetier),
+    () =>
+      situations.filter(
+        (situation: SituationWithVariantes) => situation.metier === activeMetier
+      ),
     [activeMetier, situations]
   );
 
   const categories = useMemo(
     () =>
       Array.from(
-        new Set(metierSituations.map((situation) => situation.categorie))
+        new Set(
+          metierSituations.map(
+            (situation: SituationWithVariantes) => situation.categorie
+          )
+        )
       ),
     [metierSituations]
   );
 
   const allTags = useMemo(
     () =>
-      Array.from(new Set(metierSituations.flatMap((situation) => situation.tags))),
+      Array.from(
+        new Set(
+          metierSituations.flatMap(
+            (situation: SituationWithVariantes) => situation.tags
+          )
+        )
+      ),
     [metierSituations]
   );
 
@@ -87,28 +102,33 @@ export default function BibliothequeClient({
     const favoriteIds = new Set(favoriteSituationIds);
 
     return metierSituations
-      .filter((situation) => {
+      .filter((situation: SituationWithVariantes) => {
         const matchesQuery =
           normalizedQuery === "" ||
           getSearchableText(situation).includes(normalizedQuery);
         const matchesCategory =
           selectedCategory === null || situation.categorie === selectedCategory;
-        const matchesTags = selectedTags.every((tag) =>
+        const matchesTags = selectedTags.every((tag: string) =>
           situation.tags.includes(tag)
         );
 
         return matchesQuery && matchesCategory && matchesTags;
       })
-      .sort((firstSituation, secondSituation) => {
-        const firstIsFavorite = favoriteIds.has(firstSituation.id);
-        const secondIsFavorite = favoriteIds.has(secondSituation.id);
+      .sort(
+        (
+          firstSituation: SituationWithVariantes,
+          secondSituation: SituationWithVariantes
+        ) => {
+          const firstIsFavorite = favoriteIds.has(firstSituation.id);
+          const secondIsFavorite = favoriteIds.has(secondSituation.id);
 
-        if (firstIsFavorite === secondIsFavorite) {
-          return 0;
+          if (firstIsFavorite === secondIsFavorite) {
+            return 0;
+          }
+
+          return firstIsFavorite ? -1 : 1;
         }
-
-        return firstIsFavorite ? -1 : 1;
-      });
+      );
   }, [
     favoriteSituationIds,
     metierSituations,
@@ -129,7 +149,7 @@ export default function BibliothequeClient({
   function toggleTag(tag: string) {
     setSelectedTags((currentTags) =>
       currentTags.includes(tag)
-        ? currentTags.filter((currentTag) => currentTag !== tag)
+        ? currentTags.filter((currentTag: string) => currentTag !== tag)
         : [...currentTags, tag]
     );
   }
@@ -231,7 +251,7 @@ export default function BibliothequeClient({
           filteredSituations.length > 0 ? (
             <>
               <div className="space-y-2 sm:hidden">
-                {filteredSituations.map((situation) => (
+                {filteredSituations.map((situation: SituationWithVariantes) => (
                   <div
                     key={situation.id}
                     className="rounded-2xl border border-stone-200 bg-white/90 px-3 py-2.5 shadow-panel"
@@ -260,7 +280,7 @@ export default function BibliothequeClient({
                 ))}
               </div>
               <div className="hidden grid-cols-2 gap-5 lg:grid xl:grid-cols-3">
-                {filteredSituations.map((situation) => (
+                {filteredSituations.map((situation: SituationWithVariantes) => (
                   <div
                     key={situation.id}
                     className="flex h-full flex-col rounded-[1.75rem] border border-stone-200 bg-white/90 p-6 shadow-panel"
@@ -293,7 +313,7 @@ export default function BibliothequeClient({
                         </p>
                       </div>
                       <div className="mt-5 flex flex-wrap gap-2">
-                        {situation.tags.slice(0, 3).map((tag) => (
+                        {situation.tags.slice(0, 3).map((tag: string) => (
                           <span
                             key={tag}
                             className="rounded-full border border-stone-200 px-3 py-1 text-xs font-medium text-stone-600"
@@ -310,7 +330,7 @@ export default function BibliothequeClient({
                 ))}
               </div>
               <div className="hidden sm:grid sm:gap-5 lg:hidden lg:grid-cols-2 xl:grid-cols-3">
-                {filteredSituations.map((situation) => (
+                {filteredSituations.map((situation: SituationWithVariantes) => (
                   <div
                     key={situation.id}
                     className="flex h-full flex-col rounded-[1.75rem] border border-stone-200 bg-white/90 p-6 shadow-panel"
@@ -343,7 +363,7 @@ export default function BibliothequeClient({
                         </p>
                       </div>
                       <div className="mt-5 flex flex-wrap gap-2">
-                        {situation.tags.slice(0, 3).map((tag) => (
+                        {situation.tags.slice(0, 3).map((tag: string) => (
                           <span
                             key={tag}
                             className="rounded-full border border-stone-200 px-3 py-1 text-xs font-medium text-stone-600"

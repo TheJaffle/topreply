@@ -4,12 +4,14 @@ import { situations } from "./seed-data.ts";
 
 const adapter = new PrismaPg(process.env.DATABASE_URL!);
 const prisma = new PrismaClient({ adapter });
+type SeedSituation = (typeof situations)[number];
+type SeedVariante = SeedSituation["variantes"][number];
 
 async function main() {
   await prisma.variante.deleteMany();
   await prisma.situation.deleteMany();
 
-  for (const situation of situations) {
+  for (const situation of situations as readonly SeedSituation[]) {
     await prisma.situation.create({
       data: {
         metier: situation.metier,
@@ -18,7 +20,7 @@ async function main() {
         description: situation.description,
         tags: situation.tags,
         variantes: {
-          create: situation.variantes.map((variante) => ({
+          create: situation.variantes.map((variante: SeedVariante) => ({
             label: variante.label,
             contenu: variante.contenu
           }))

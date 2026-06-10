@@ -1,6 +1,9 @@
 import Link from "next/link";
 import FavoriteButton from "@/components/FavoriteButton";
-import { getFavoriteSituationsByAuthUserId } from "@/lib/repositories/favorites";
+import {
+  getFavoriteSituationsByAuthUserId,
+  type FavoriteWithSituation
+} from "@/lib/repositories/favorites";
 import { hasSupabaseAuthCookies } from "@/lib/supabase/auth-state";
 import { createClient } from "@/lib/supabase/server";
 
@@ -76,7 +79,7 @@ export default async function FavorisPage() {
             </p>
 
             <div className="space-y-2 sm:hidden">
-              {favorites.map(({ situation }) => (
+              {favorites.map(({ situation }: FavoriteWithSituation) => (
                 <div
                   key={situation.id}
                   className="rounded-2xl border border-stone-200 bg-white/90 px-3 py-2.5 shadow-panel"
@@ -106,7 +109,7 @@ export default async function FavorisPage() {
             </div>
 
             <div className="hidden sm:grid sm:gap-5 lg:grid-cols-2 xl:grid-cols-3">
-              {favorites.map(({ situation }) => (
+              {favorites.map(({ situation }: FavoriteWithSituation) => (
                 <div
                   key={situation.id}
                   className="flex h-full flex-col rounded-[1.75rem] border border-stone-200 bg-white/90 p-6 shadow-panel"
@@ -139,7 +142,7 @@ export default async function FavorisPage() {
                       </p>
                     </div>
                     <div className="mt-5 flex flex-wrap gap-2">
-                      {situation.tags.slice(0, 3).map((tag) => (
+                      {situation.tags.slice(0, 3).map((tag: string) => (
                         <span
                           key={tag}
                           className="rounded-full border border-stone-200 px-3 py-1 text-xs font-medium text-stone-600"

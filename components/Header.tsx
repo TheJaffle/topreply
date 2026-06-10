@@ -4,7 +4,12 @@ import MobileMenu from "@/components/MobileMenu";
 import { hasSupabaseAuthCookies } from "@/lib/supabase/auth-state";
 import { createClient } from "@/lib/supabase/server";
 
-const publicLinks = [
+type HeaderLink = Readonly<{
+  href: string;
+  label: string;
+}>;
+
+const publicLinks: readonly HeaderLink[] = [
   { href: "/", label: "Accueil" },
   { href: "/bibliotheque", label: "Bibliothèque" }
 ];
@@ -25,9 +30,9 @@ export default async function Header() {
     }
   }
 
-  const links = user
+  const links: HeaderLink[] = user
     ? [...publicLinks, { href: "/favoris", label: "Favoris" }]
-    : publicLinks;
+    : [...publicLinks];
 
   return (
     <header className="border-b border-white/60 bg-white/80 backdrop-blur">
@@ -41,7 +46,7 @@ export default async function Header() {
         <MobileMenu isAuthenticated={Boolean(user)} logoutAction={logout} />
         <nav aria-label="Navigation principale" className="hidden sm:block">
           <ul className="flex flex-wrap items-center gap-2 rounded-3xl border border-stone-200 bg-stone-50 p-1 text-sm font-medium text-stone-600">
-            {links.map((link) => (
+            {links.map((link: HeaderLink) => (
               <li key={link.href}>
                 <Link
                   href={link.href}

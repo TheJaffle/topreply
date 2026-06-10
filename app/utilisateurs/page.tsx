@@ -1,3 +1,4 @@
+import type { User } from "@supabase/supabase-js";
 import { deleteSelectedUsers } from "@/app/utilisateurs/actions";
 import { getUserProfilesByAuthUserIds } from "@/lib/repositories/userProfiles";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -13,10 +14,10 @@ export default async function UtilisateursPage() {
     throw new Error(error.message);
   }
 
-  const authUserIds = users.map((user) => user.id);
+  const authUserIds = users.map((user: User) => user.id);
   const profiles = await getUserProfilesByAuthUserIds(authUserIds);
   const profilesByAuthUserId = new Map(
-    profiles.map((profile) => [profile.authUserId, profile])
+    profiles.map((profile) => [profile.authUserId, profile] as const)
   );
 
   return (
@@ -34,7 +35,7 @@ export default async function UtilisateursPage() {
         {users.length > 0 ? (
           <form action={deleteSelectedUsers} className="space-y-4">
             <div className="space-y-3">
-              {users.map((user) => {
+              {users.map((user: User) => {
                 const profile = profilesByAuthUserId.get(user.id);
 
                 return (

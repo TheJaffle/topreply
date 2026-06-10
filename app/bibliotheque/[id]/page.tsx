@@ -68,7 +68,7 @@ export default async function SituationDetailPage({
             </p>
           </div>
           <div className="hidden flex-wrap gap-2 sm:flex">
-            {situation.tags.map((tag) => (
+            {situation.tags.map((tag: string) => (
               <span
                 key={tag}
                 className="rounded-full border border-stone-200 px-3 py-1 text-sm font-medium text-stone-600"

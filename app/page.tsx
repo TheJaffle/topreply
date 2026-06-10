@@ -1,6 +1,38 @@
 import Link from "next/link";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { hasSupabaseAuthCookies } from "@/lib/supabase/auth-state";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
+function isMobileUserAgent(userAgent: string) {
+  return /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile/i.test(
+    userAgent
+  );
+}
+
+export default async function HomePage() {
+  const headerStore = await headers();
+  const userAgent = headerStore.get("user-agent") ?? "";
+
+  if (isMobileUserAgent(userAgent)) {
+    let user = null;
+
+    if (await hasSupabaseAuthCookies()) {
+      try {
+        const supabase = await createClient();
+        const {
+          data: { session }
+        } = await supabase.auth.getSession();
+
+        user = session?.user ?? null;
+      } catch {
+        user = null;
+      }
+    }
+
+    redirect(user ? "/bibliotheque" : "/login");
+  }
+
   return (
     <section className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl items-center px-5 py-16 sm:px-8 lg:px-12">
       <div className="grid w-full gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">

@@ -20,7 +20,7 @@ export default function TagFilters({
             type="button"
             onClick={() => onToggleTag(tag)}
             aria-pressed={isSelected}
-            className={`min-h-11 rounded-full border px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-100 ${
+            className={`rounded-full border px-2.5 py-1 text-[11px] font-medium leading-none transition focus:outline-none focus:ring-2 focus:ring-blue-100 sm:min-h-11 sm:px-4 sm:py-2 sm:text-sm sm:leading-normal ${
               isSelected
                 ? "border-blue-600 bg-blue-600 text-white"
                 : "border-stone-200 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50"

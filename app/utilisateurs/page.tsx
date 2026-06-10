@@ -4,9 +4,26 @@ import {
   getUserProfilesByAuthUserIds,
   type UserProfileRecord
 } from "@/lib/repositories/userProfiles";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, hasSupabaseAdminEnv } from "@/lib/supabase/admin";
+
+export const dynamic = "force-dynamic";
 
 export default async function UtilisateursPage() {
+  if (!hasSupabaseAdminEnv()) {
+    return (
+      <section className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-8 sm:py-12">
+        <div className="rounded-[1.75rem] border border-stone-200 bg-white/90 p-4 shadow-panel sm:p-8">
+          <h1 className="text-2xl font-semibold tracking-tight text-stone-900 sm:text-3xl">
+            Utilisateurs
+          </h1>
+          <p className="mt-2 text-sm leading-6 text-stone-600 sm:text-base">
+            Gestion indisponible sans configuration admin Supabase.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   const supabase = createAdminClient();
   const {
     data: { users },

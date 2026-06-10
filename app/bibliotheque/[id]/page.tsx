@@ -79,7 +79,7 @@ export default async function SituationDetailPage({
           </div>
         </div>
         <div className="space-y-2.5 sm:space-y-4">
-          {situation.variantes.map((variante) => (
+          {situation.variantes.map((variante: { id: string; label: string; contenu: string }) => (
             <article
               key={variante.id}
               className="rounded-[1.1rem] border border-stone-200 bg-stone-50 p-3 sm:rounded-[1.5rem] sm:p-6"

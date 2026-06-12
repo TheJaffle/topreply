@@ -7,13 +7,15 @@ datasource db {
 }
 
 model UserProfile {
-  id         String   @id @default(cuid())
-  authUserId String   @unique
-  email      String
-  displayName String?
-  metier     String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  displayName  String?
+  metier       String
+  favorites    Favorite[]
+  sessions     Session[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 model Situation {
@@ -30,13 +32,25 @@ model Situation {
 }
 
 model Favorite {
-  id         String    @id @default(cuid())
-  authUserId String
+  id          String      @id @default(cuid())
+  userId      String
   situationId String
-  situation  Situation @relation(fields: [situationId], references: [id], onDelete: Cascade)
-  createdAt  DateTime  @default(now())
+  user        UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  situation   Situation   @relation(fields: [situationId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
 
-  @@unique([authUserId, situationId])
+  @@unique([userId, situationId])
+}
+
+model Session {
+  id        String      @id @default(cuid())
+  tokenHash String      @unique
+  userId    String
+  user      UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime    @default(now())
+
+  @@index([userId])
 }
 
 model Variante {

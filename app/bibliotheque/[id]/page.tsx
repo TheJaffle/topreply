@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import CopyButton from "@/components/CopyButton";
 import FavoriteButton from "@/components/FavoriteButton";
+import { getCurrentUser } from "@/lib/auth/session";
 import { isSituationFavorite } from "@/lib/repositories/favorites";
 import { getSituationById } from "@/lib/repositories/situations";
-import { hasSupabaseAuthCookies } from "@/lib/supabase/auth-state";
-import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 type SituationDetailPageProps = Readonly<{
   params: Promise<{
@@ -17,27 +18,16 @@ export default async function SituationDetailPage({
 }: SituationDetailPageProps) {
   const { id } = await params;
   const situation = await getSituationById(id);
-  let isAuthenticated = false;
+  const currentUser = await getCurrentUser();
+  const isAuthenticated = Boolean(currentUser);
   let favorite = false;
 
   if (!situation) {
     notFound();
   }
 
-  if (await hasSupabaseAuthCookies()) {
-    try {
-      const supabase = await createClient();
-      const {
-        data: { session }
-      } = await supabase.auth.getSession();
-
-      const authUserId = session?.user?.id;
-
-      if (authUserId) {
-        isAuthenticated = true;
-        favorite = await isSituationFavorite(authUserId, situation.id);
-      }
-    } catch {}
+  if (currentUser) {
+    favorite = await isSituationFavorite(currentUser.id, situation.id);
   }
 
   return (

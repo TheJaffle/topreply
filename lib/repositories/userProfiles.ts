@@ -1,19 +1,45 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
-type EnsureUserProfileInput = Readonly<{
-  authUserId: string;
+type CreateUserProfileInput = Readonly<{
   email: string;
+  passwordHash: string;
   displayName?: string | null;
   metier: string;
 }>;
 
+type UpdateUserProfileInput = Readonly<{
+  displayName?: string | null;
+  metier?: string;
+  passwordHash?: string;
+}>;
+
 export type UserProfileRecord = Prisma.UserProfileGetPayload<Record<string, never>>;
 
-export async function getUserProfileByAuthUserId(authUserId: string) {
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+export async function getUserProfileById(id: string) {
   return prisma.userProfile.findUnique({
-    where: { authUserId }
+    where: { id }
   });
+}
+
+export async function getUserProfileByEmail(email: string) {
+  return prisma.userProfile.findUnique({
+    where: {
+      email: normalizeEmail(email)
+    }
+  });
+}
+
+export async function listUserProfiles() {
+  return prisma.userProfile.findMany({
+    orderBy: {
+      createdAt: "desc"
+    }
+  }) as Promise<UserProfileRecord[]>;
 }
 
 export function isUserProfileComplete(profile: {
@@ -23,51 +49,45 @@ export function isUserProfileComplete(profile: {
   return Boolean(profile?.displayName?.trim() && profile.metier.trim());
 }
 
-export async function getUserProfilesByAuthUserIds(authUserIds: string[]) {
-  if (authUserIds.length === 0) {
-    return [] as UserProfileRecord[];
-  }
-
-  return prisma.userProfile.findMany({
-    where: {
-      authUserId: {
-        in: authUserIds
-      }
-    }
-  }) as Promise<UserProfileRecord[]>;
-}
-
-export async function ensureUserProfile({
-  authUserId,
+export async function createUserProfile({
   email,
+  passwordHash,
   displayName = null,
   metier
-}: EnsureUserProfileInput) {
-  return prisma.userProfile.upsert({
-    where: { authUserId },
-    create: {
-      authUserId,
-      email,
+}: CreateUserProfileInput) {
+  return prisma.userProfile.create({
+    data: {
+      email: normalizeEmail(email),
+      passwordHash,
       displayName,
-      metier
-    },
-    update: {
-      email,
-      displayName: displayName ?? undefined,
       metier
     }
   });
 }
 
-export async function deleteUserProfilesByAuthUserIds(authUserIds: string[]) {
-  if (authUserIds.length === 0) {
+export async function updateUserProfile(
+  id: string,
+  { displayName, metier, passwordHash }: UpdateUserProfileInput
+) {
+  return prisma.userProfile.update({
+    where: { id },
+    data: {
+      ...(displayName !== undefined ? { displayName } : {}),
+      ...(metier !== undefined ? { metier } : {}),
+      ...(passwordHash !== undefined ? { passwordHash } : {})
+    }
+  });
+}
+
+export async function deleteUserProfilesByIds(userIds: string[]) {
+  if (userIds.length === 0) {
     return;
   }
 
   await prisma.userProfile.deleteMany({
     where: {
-      authUserId: {
-        in: authUserIds
+      id: {
+        in: userIds
       }
     }
   });

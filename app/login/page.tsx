@@ -1,5 +1,9 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { login } from "@/app/auth/actions";
+import { getCurrentUser } from "@/lib/auth/session";
+
+export const dynamic = "force-dynamic";
 
 type LoginPageProps = Readonly<{
   searchParams: Promise<{
@@ -11,7 +15,7 @@ type LoginPageProps = Readonly<{
 function getMessage(message?: string, error?: string) {
   if (message === "signup-success") {
     return {
-      text: "Compte créé, connectez-vous.",
+      text: "Compte cree, connectez-vous.",
       tone: "success" as const
     };
   }
@@ -34,6 +38,12 @@ function getMessage(message?: string, error?: string) {
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const user = await getCurrentUser();
+
+  if (user) {
+    redirect("/bibliotheque");
+  }
+
   const { error, message } = await searchParams;
   const feedback = getMessage(message, error);
 
@@ -101,7 +111,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </button>
           </form>
           <p className="text-sm text-stone-600">
-            Pas encore de compte ?{" "}
+            Pas encore de compte? {" "}
             <Link href="/signup" className="font-semibold text-accent">
               Créer un compte
             </Link>

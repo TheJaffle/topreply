@@ -1,41 +1,25 @@
 import BibliothequeClient from "@/components/BibliothequeClient";
+import { getCurrentUser } from "@/lib/auth/session";
 import { appConfig } from "@/lib/config/appConfig";
 import { getFavoriteSituationIds } from "@/lib/repositories/favorites";
 import { getSituations } from "@/lib/repositories/situations";
-import { getUserProfileByAuthUserId } from "@/lib/repositories/userProfiles";
-import { hasSupabaseAuthCookies } from "@/lib/supabase/auth-state";
-import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 export default async function BibliothequePage() {
   const situations = await getSituations();
+  const currentUser = await getCurrentUser();
   let activeMetier = appConfig.currentMetier;
   let favoriteSituationIds: string[] = [];
   let isAuthenticated = false;
 
-  if (await hasSupabaseAuthCookies()) {
-    try {
-      const supabase = await createClient();
-      const {
-        data: { session }
-      } = await supabase.auth.getSession();
-
-      const authUserId = session?.user?.id;
-
-      if (authUserId) {
-        isAuthenticated = true;
-
-        const profile = await getUserProfileByAuthUserId(authUserId);
-
-        favoriteSituationIds = await getFavoriteSituationIds(
-          authUserId,
-          situations.map((situation) => situation.id)
-        );
-
-        if (profile?.metier) {
-          activeMetier = profile.metier;
-        }
-      }
-    } catch {}
+  if (currentUser) {
+    isAuthenticated = true;
+    activeMetier = currentUser.metier || appConfig.currentMetier;
+    favoriteSituationIds = await getFavoriteSituationIds(
+      currentUser.id,
+      situations.map((situation) => situation.id)
+    );
   }
 
   return (

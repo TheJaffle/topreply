@@ -1,12 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { ensureUserProfile } from "@/lib/repositories/userProfiles";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { createSession, deleteCurrentSession } from "@/lib/auth/session";
 import {
-  getUserProfileByAuthUserId,
+  createUserProfile,
+  getUserProfileByEmail,
   isUserProfileComplete
 } from "@/lib/repositories/userProfiles";
-import { createClient } from "@/lib/supabase/server";
+
+const allowedMetiers = new Set(["Artisan", "Immobilier", "Commercial B2B"]);
 
 function getLoginCredentials(formData: FormData) {
   const email = formData.get("email");
@@ -52,20 +55,13 @@ export async function login(formData: FormData) {
     redirect("/login?error=missing-fields");
   }
 
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithPassword(credentials);
+  const profile = await getUserProfileByEmail(credentials.email);
 
-  if (error) {
+  if (!profile || !verifyPassword(credentials.password, profile.passwordHash)) {
     redirect("/login?error=invalid-credentials");
   }
 
-  const authUserId = data.user?.id;
-
-  if (!authUserId) {
-    redirect("/complete-profile");
-  }
-
-  const profile = await getUserProfileByAuthUserId(authUserId);
+  await createSession(profile.id);
 
   redirect(isUserProfileComplete(profile) ? "/bibliotheque" : "/complete-profile");
 }
@@ -82,31 +78,27 @@ export async function signup(formData: FormData) {
     redirect("/signup?error=missing-fields");
   }
 
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signUp({
+  if (!allowedMetiers.has(credentials.metier)) {
+    redirect("/signup?error=invalid-metier");
+  }
+
+  const existingProfile = await getUserProfileByEmail(credentials.email);
+
+  if (existingProfile) {
+    redirect("/signup?error=email-exists");
+  }
+
+  await createUserProfile({
     email: credentials.email,
-    password: credentials.password
+    passwordHash: hashPassword(credentials.password),
+    displayName: credentials.displayName,
+    metier: credentials.metier
   });
-
-  if (error) {
-    redirect(`/signup?error=${encodeURIComponent(error.message)}`);
-  }
-
-  if (data.user?.id && data.user.email) {
-    await ensureUserProfile({
-      authUserId: data.user.id,
-      email: data.user.email,
-      displayName: credentials.displayName,
-      metier: credentials.metier
-    });
-  }
 
   redirect("/login?message=signup-success");
 }
 
 export async function logout() {
-  const supabase = await createClient();
-
-  await supabase.auth.signOut();
+  await deleteCurrentSession();
   redirect("/login");
 }

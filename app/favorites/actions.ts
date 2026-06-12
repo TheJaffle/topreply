@@ -1,41 +1,33 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getCurrentUserId } from "@/lib/auth/session";
 import { addFavorite, removeFavorite } from "@/lib/repositories/favorites";
-import { createClient } from "@/lib/supabase/server";
 
 type FavoriteActionResult = Readonly<{
   ok: boolean;
   requiresLogin?: boolean;
 }>;
 
-async function getAuthUserId() {
-  const supabase = await createClient();
-  const {
-    data: { session }
-  } = await supabase.auth.getSession();
-
-  return session?.user?.id ?? null;
-}
-
 function revalidateFavoritePaths(situationId: string) {
   revalidatePath("/bibliotheque");
   revalidatePath(`/bibliotheque/${situationId}`);
+  revalidatePath("/favoris");
 }
 
 export async function addFavoriteAction(
   situationId: string
 ): Promise<FavoriteActionResult> {
-  const authUserId = await getAuthUserId();
+  const userId = await getCurrentUserId();
 
-  if (!authUserId) {
+  if (!userId) {
     return {
       ok: false,
       requiresLogin: true
     };
   }
 
-  await addFavorite(authUserId, situationId);
+  await addFavorite(userId, situationId);
   revalidateFavoritePaths(situationId);
 
   return {
@@ -46,16 +38,16 @@ export async function addFavoriteAction(
 export async function removeFavoriteAction(
   situationId: string
 ): Promise<FavoriteActionResult> {
-  const authUserId = await getAuthUserId();
+  const userId = await getCurrentUserId();
 
-  if (!authUserId) {
+  if (!userId) {
     return {
       ok: false,
       requiresLogin: true
     };
   }
 
-  await removeFavorite(authUserId, situationId);
+  await removeFavorite(userId, situationId);
   revalidateFavoritePaths(situationId);
 
   return {

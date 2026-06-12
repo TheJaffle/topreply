@@ -1,29 +1,17 @@
 import Link from "next/link";
 import FavoriteButton from "@/components/FavoriteButton";
+import { getCurrentUser } from "@/lib/auth/session";
 import {
-  getFavoriteSituationsByAuthUserId,
+  getFavoriteSituationsByUserId,
   type FavoriteWithSituation
 } from "@/lib/repositories/favorites";
-import { hasSupabaseAuthCookies } from "@/lib/supabase/auth-state";
-import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 export default async function FavorisPage() {
-  let authUserId: string | null = null;
+  const currentUser = await getCurrentUser();
 
-  if (await hasSupabaseAuthCookies()) {
-    try {
-      const supabase = await createClient();
-      const {
-        data: { session }
-      } = await supabase.auth.getSession();
-
-      authUserId = session?.user?.id ?? null;
-    } catch {
-      authUserId = null;
-    }
-  }
-
-  if (!authUserId) {
+  if (!currentUser) {
     return (
       <section className="mx-auto w-full max-w-4xl px-4 py-4 sm:px-8 sm:py-16 lg:px-12">
         <div className="space-y-3 rounded-2xl border border-stone-200 bg-white/90 p-3 shadow-panel sm:space-y-4 sm:rounded-[2rem] sm:p-8">
@@ -44,7 +32,7 @@ export default async function FavorisPage() {
     );
   }
 
-  const favorites = await getFavoriteSituationsByAuthUserId(authUserId);
+  const favorites = await getFavoriteSituationsByUserId(currentUser.id);
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-3 sm:px-8 sm:py-16 lg:px-12">

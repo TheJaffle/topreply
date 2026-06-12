@@ -1,5 +1,9 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { signup } from "@/app/auth/actions";
+import { getCurrentUser } from "@/lib/auth/session";
+
+export const dynamic = "force-dynamic";
 
 type SignupPageProps = Readonly<{
   searchParams: Promise<{
@@ -12,14 +16,24 @@ function getErrorMessage(error?: string) {
     return "Veuillez renseigner tous les champs du formulaire.";
   }
 
-  if (error) {
-    return decodeURIComponent(error);
+  if (error === "email-exists") {
+    return "Un compte existe déjà avec cet email.";
+  }
+
+  if (error === "invalid-metier") {
+    return "Veuillez choisir une bibliothèque valide.";
   }
 
   return null;
 }
 
 export default async function SignupPage({ searchParams }: SignupPageProps) {
+  const user = await getCurrentUser();
+
+  if (user) {
+    redirect("/bibliotheque");
+  }
+
   const { error } = await searchParams;
   const errorMessage = getErrorMessage(error);
 
@@ -119,7 +133,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
             </button>
           </form>
           <p className="text-sm text-stone-600">
-            Déjà inscrit ?{" "}
+            Déjà inscrit ? {" "}
             <Link href="/login" className="font-semibold text-accent">
               Connexion
             </Link>

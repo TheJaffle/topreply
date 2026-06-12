@@ -1,8 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { ensureUserProfile } from "@/lib/repositories/userProfiles";
-import { createClient } from "@/lib/supabase/server";
+import { requireCurrentUser } from "@/lib/auth/session";
+import { updateUserProfile } from "@/lib/repositories/userProfiles";
+
+const allowedMetiers = new Set(["Artisan", "Immobilier", "Commercial B2B"]);
 
 function getProfileData(formData: FormData) {
   const displayName = formData.get("displayName");
@@ -25,20 +27,13 @@ export async function completeProfile(formData: FormData) {
     redirect("/complete-profile?error=missing-fields");
   }
 
-  const supabase = await createClient();
-  const {
-    data: { session }
-  } = await supabase.auth.getSession();
-
-  const user = session?.user;
-
-  if (!user?.id || !user.email) {
-    redirect("/login");
+  if (!allowedMetiers.has(profileData.metier)) {
+    redirect("/complete-profile?error=missing-fields");
   }
 
-  await ensureUserProfile({
-    authUserId: user.id,
-    email: user.email,
+  const user = await requireCurrentUser();
+
+  await updateUserProfile(user.id, {
     displayName: profileData.displayName,
     metier: profileData.metier
   });

@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
 import { completeProfile } from "@/app/complete-profile/actions";
-import {
-  getUserProfileByAuthUserId,
-  isUserProfileComplete
-} from "@/lib/repositories/userProfiles";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/session";
+import { isUserProfileComplete } from "@/lib/repositories/userProfiles";
+
+export const dynamic = "force-dynamic";
 
 type CompleteProfilePageProps = Readonly<{
   searchParams: Promise<{
@@ -23,20 +22,13 @@ function getErrorMessage(error?: string) {
 export default async function CompleteProfilePage({
   searchParams
 }: CompleteProfilePageProps) {
-  const supabase = await createClient();
-  const {
-    data: { session }
-  } = await supabase.auth.getSession();
+  const user = await getCurrentUser();
 
-  const user = session?.user;
-
-  if (!user?.id || !user.email) {
+  if (!user) {
     redirect("/login");
   }
 
-  const profile = await getUserProfileByAuthUserId(user.id);
-
-  if (isUserProfileComplete(profile)) {
+  if (isUserProfileComplete(user)) {
     redirect("/bibliotheque");
   }
 
@@ -71,7 +63,7 @@ export default async function CompleteProfilePage({
                 type="text"
                 autoComplete="organization"
                 required
-                defaultValue={profile?.displayName ?? ""}
+                defaultValue={user.displayName ?? ""}
                 className="min-h-12 w-full rounded-[1.25rem] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
               />
             </div>
@@ -86,7 +78,7 @@ export default async function CompleteProfilePage({
                 id="metier"
                 name="metier"
                 required
-                defaultValue={profile?.metier ?? ""}
+                defaultValue={user.metier ?? ""}
                 className="min-h-12 w-full rounded-[1.25rem] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="" disabled>

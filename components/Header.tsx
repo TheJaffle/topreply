@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { logout } from "@/app/auth/actions";
 import MobileMenu from "@/components/MobileMenu";
-import { hasSupabaseAuthCookies } from "@/lib/supabase/auth-state";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/session";
 
 type HeaderLink = Readonly<{
   href: string;
@@ -15,20 +14,7 @@ const publicLinks: readonly HeaderLink[] = [
 ];
 
 export default async function Header() {
-  let user = null;
-
-  if (await hasSupabaseAuthCookies()) {
-    try {
-      const supabase = await createClient();
-      const {
-        data: { session }
-      } = await supabase.auth.getSession();
-
-      user = session?.user ?? null;
-    } catch {
-      user = null;
-    }
-  }
+  const user = await getCurrentUser();
 
   const links: HeaderLink[] = user
     ? [...publicLinks, { href: "/favoris", label: "Favoris" }]

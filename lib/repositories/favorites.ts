@@ -17,39 +17,36 @@ export type FavoriteWithSituation = Prisma.FavoriteGetPayload<{
   include: typeof favoriteWithSituation;
 }>;
 
-export async function addFavorite(authUserId: string, situationId: string) {
+export async function addFavorite(userId: string, situationId: string) {
   return prisma.favorite.upsert({
     where: {
-      authUserId_situationId: {
-        authUserId,
+      userId_situationId: {
+        userId,
         situationId
       }
     },
     create: {
-      authUserId,
+      userId,
       situationId
     },
     update: {}
   });
 }
 
-export async function removeFavorite(authUserId: string, situationId: string) {
+export async function removeFavorite(userId: string, situationId: string) {
   await prisma.favorite.deleteMany({
     where: {
-      authUserId,
+      userId,
       situationId
     }
   });
 }
 
-export async function isSituationFavorite(
-  authUserId: string,
-  situationId: string
-) {
+export async function isSituationFavorite(userId: string, situationId: string) {
   const favorite = await prisma.favorite.findUnique({
     where: {
-      authUserId_situationId: {
-        authUserId,
+      userId_situationId: {
+        userId,
         situationId
       }
     },
@@ -61,13 +58,10 @@ export async function isSituationFavorite(
   return favorite !== null;
 }
 
-export async function getFavoriteSituationIds(
-  authUserId: string,
-  situationIds?: string[]
-) {
+export async function getFavoriteSituationIds(userId: string, situationIds?: string[]) {
   const favorites = await prisma.favorite.findMany({
     where: {
-      authUserId,
+      userId,
       ...(situationIds && situationIds.length > 0
         ? {
             situationId: {
@@ -84,12 +78,10 @@ export async function getFavoriteSituationIds(
   return favorites.map((favorite: { situationId: string }) => favorite.situationId);
 }
 
-export async function getFavoriteSituationsByAuthUserId(
-  authUserId: string
-): Promise<FavoriteWithSituation[]> {
+export async function getFavoriteSituationsByUserId(userId: string): Promise<FavoriteWithSituation[]> {
   return prisma.favorite.findMany({
     where: {
-      authUserId
+      userId
     },
     include: favoriteWithSituation,
     orderBy: {

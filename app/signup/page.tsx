@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signup } from "@/app/auth/actions";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -14,6 +14,14 @@ type SignupPageProps = Readonly<{
 function getErrorMessage(error?: string) {
   if (error === "missing-fields") {
     return "Veuillez renseigner tous les champs du formulaire.";
+  }
+
+  if (error === "missing-first-name") {
+    return "Le prénom est obligatoire.";
+  }
+
+  if (error === "missing-last-name") {
+    return "Le nom est obligatoire.";
   }
 
   if (error === "email-exists") {
@@ -39,7 +47,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
 
   return (
     <section className="mx-auto w-full max-w-md px-5 py-12 sm:px-8 sm:py-16">
-      <div className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-panel sm:p-8">
+      <div className="rounded-[6px] border border-white/70 bg-white/90 p-6 shadow-panel sm:p-8">
         <div className="space-y-6">
           <div className="space-y-3">
             <h1 className="text-3xl font-semibold tracking-tight text-stone-900">
@@ -50,26 +58,44 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
             </p>
           </div>
           {errorMessage ? (
-            <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            <p className="rounded-[6px] bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
               {errorMessage}
             </p>
           ) : null}
           <form action={signup} className="space-y-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="displayName"
-                className="text-sm font-semibold text-stone-700"
-              >
-                Nom ou société
-              </label>
-              <input
-                id="displayName"
-                name="displayName"
-                type="text"
-                autoComplete="organization"
-                required
-                className="min-h-12 w-full rounded-[1.25rem] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
-              />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label
+                  htmlFor="firstName"
+                  className="text-sm font-semibold text-stone-700"
+                >
+                  Prénom
+                </label>
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  autoComplete="given-name"
+                  required
+                  className="min-h-12 w-full rounded-[6px] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="lastName"
+                  className="text-sm font-semibold text-stone-700"
+                >
+                  Nom
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  autoComplete="family-name"
+                  required
+                  className="min-h-12 w-full rounded-[6px] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <label
@@ -84,7 +110,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
                 type="email"
                 autoComplete="email"
                 required
-                className="min-h-12 w-full rounded-[1.25rem] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                className="min-h-12 w-full rounded-[6px] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
               />
             </div>
             <div className="space-y-2">
@@ -100,7 +126,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="min-h-12 w-full rounded-[1.25rem] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                className="min-h-12 w-full rounded-[6px] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
               />
             </div>
             <div className="space-y-2">
@@ -115,7 +141,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
                 name="metier"
                 required
                 defaultValue=""
-                className="min-h-12 w-full rounded-[1.25rem] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                className="min-h-12 w-full rounded-[6px] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="" disabled>
                   Choisir une bibliothèque
@@ -133,7 +159,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
             </button>
           </form>
           <p className="text-sm text-stone-600">
-            Déjà inscrit ? {" "}
+            Déjà inscrit ?{" "}
             <Link href="/login" className="font-semibold text-accent">
               Connexion
             </Link>

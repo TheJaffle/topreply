@@ -49,7 +49,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <section className="mx-auto w-full max-w-md px-5 py-12 sm:px-8 sm:py-16">
-      <div className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-panel sm:p-8">
+      <div className="rounded-[6px] border border-white/70 bg-white/90 p-6 shadow-panel sm:p-8">
         <div className="space-y-6">
           <div className="space-y-3">
             <h1 className="text-3xl font-semibold tracking-tight text-stone-900">
@@ -61,7 +61,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
           {feedback ? (
             <p
-              className={`rounded-2xl px-4 py-3 text-sm font-medium ${
+              className={`rounded-[6px] px-4 py-3 text-sm font-medium ${
                 feedback.tone === "success"
                   ? "bg-green-50 text-green-700"
                   : "bg-red-50 text-red-700"
@@ -84,7 +84,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 type="email"
                 autoComplete="email"
                 required
-                className="min-h-12 w-full rounded-[1.25rem] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                className="min-h-12 w-full rounded-[6px] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
               />
             </div>
             <div className="space-y-2">
@@ -100,7 +100,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="min-h-12 w-full rounded-[1.25rem] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                className="min-h-12 w-full rounded-[6px] border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
               />
             </div>
             <button
@@ -113,7 +113,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <p className="text-sm text-stone-600">
             Pas encore de compte? {" "}
             <Link href="/signup" className="font-semibold text-accent">
-              Créer un compte
+              CrÃ©er un compte
             </Link>
           </p>
         </div>

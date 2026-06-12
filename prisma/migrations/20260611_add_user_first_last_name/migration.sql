@@ -1,0 +1,11 @@
+﻿ALTER TABLE "UserProfile"
+ADD COLUMN "firstName" TEXT NOT NULL DEFAULT '';
+
+ALTER TABLE "UserProfile"
+ADD COLUMN "lastName" TEXT NOT NULL DEFAULT '';
+
+ALTER TABLE "UserProfile"
+ALTER COLUMN "firstName" DROP DEFAULT;
+
+ALTER TABLE "UserProfile"
+ALTER COLUMN "lastName" DROP DEFAULT;

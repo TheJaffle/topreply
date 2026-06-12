@@ -10,6 +10,8 @@ model UserProfile {
   id           String     @id @default(cuid())
   email        String     @unique
   passwordHash String
+  firstName    String
+  lastName     String
   displayName  String?
   metier       String
   favorites    Favorite[]

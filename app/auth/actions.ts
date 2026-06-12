@@ -1,9 +1,10 @@
-"use server";
+﻿"use server";
 
 import { redirect } from "next/navigation";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { createSession, deleteCurrentSession } from "@/lib/auth/session";
 import {
+  buildDisplayName,
   createUserProfile,
   getUserProfileByEmail,
   isUserProfileComplete
@@ -28,13 +29,15 @@ function getLoginCredentials(formData: FormData) {
 function getSignupCredentials(formData: FormData) {
   const email = formData.get("email");
   const password = formData.get("password");
-  const displayName = formData.get("displayName");
+  const firstName = formData.get("firstName");
+  const lastName = formData.get("lastName");
   const metier = formData.get("metier");
 
   if (
     typeof email !== "string" ||
     typeof password !== "string" ||
-    typeof displayName !== "string" ||
+    typeof firstName !== "string" ||
+    typeof lastName !== "string" ||
     typeof metier !== "string"
   ) {
     return null;
@@ -43,7 +46,8 @@ function getSignupCredentials(formData: FormData) {
   return {
     email: email.trim(),
     password,
-    displayName: displayName.trim(),
+    firstName: firstName.trim(),
+    lastName: lastName.trim(),
     metier: metier.trim()
   };
 }
@@ -69,13 +73,16 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const credentials = getSignupCredentials(formData);
 
-  if (
-    !credentials?.email ||
-    !credentials.password ||
-    !credentials.displayName ||
-    !credentials.metier
-  ) {
+  if (!credentials?.email || !credentials.password || !credentials.metier) {
     redirect("/signup?error=missing-fields");
+  }
+
+  if (!credentials.firstName) {
+    redirect("/signup?error=missing-first-name");
+  }
+
+  if (!credentials.lastName) {
+    redirect("/signup?error=missing-last-name");
   }
 
   if (!allowedMetiers.has(credentials.metier)) {
@@ -91,7 +98,9 @@ export async function signup(formData: FormData) {
   await createUserProfile({
     email: credentials.email,
     passwordHash: hashPassword(credentials.password),
-    displayName: credentials.displayName,
+    firstName: credentials.firstName,
+    lastName: credentials.lastName,
+    displayName: buildDisplayName(credentials.firstName, credentials.lastName),
     metier: credentials.metier
   });
 

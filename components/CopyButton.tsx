@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 
@@ -8,8 +8,16 @@ type CopyButtonProps = Readonly<{
   text: string;
 }>;
 
-function getMobileActionClassName() {
-  return "inline-flex items-center justify-center rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-semibold leading-none text-stone-700 transition hover:border-stone-300 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-2";
+function getActionClassName(tone: "neutral" | "whatsapp" | "sms") {
+  if (tone === "whatsapp") {
+    return "inline-flex min-w-[84px] flex-1 items-center justify-center rounded-[6px] bg-[linear-gradient(180deg,#2f9d73_0%,#1f7f5a_100%)] px-3 py-1.5 text-[11px] font-semibold leading-none text-white shadow-[0_14px_26px_-18px_rgba(16,86,62,0.65),inset_0_1px_0_rgba(255,255,255,0.18)] transition hover:brightness-105 focus:outline-none sm:min-w-[92px] sm:flex-none sm:px-3 sm:py-2 sm:text-xs sm:leading-normal";
+  }
+
+  if (tone === "sms") {
+    return "inline-flex min-w-[84px] flex-1 items-center justify-center rounded-[6px] bg-[linear-gradient(180deg,#4c8df6_0%,#2563eb_100%)] px-3 py-1.5 text-[11px] font-semibold leading-none text-white shadow-[0_14px_26px_-18px_rgba(37,99,235,0.7),inset_0_1px_0_rgba(255,255,255,0.18)] transition hover:brightness-105 focus:outline-none sm:min-w-[92px] sm:flex-none sm:px-3 sm:py-2 sm:text-xs sm:leading-normal";
+  }
+
+  return "inline-flex min-w-[84px] flex-1 items-center justify-center rounded-[6px] bg-[linear-gradient(180deg,#edf3ff_0%,#dbe7f9_100%)] px-3 py-1.5 text-[11px] font-semibold leading-none text-slate-800 shadow-[0_14px_26px_-18px_rgba(2,6,23,0.42),inset_0_1px_0_rgba(255,255,255,0.82)] transition hover:brightness-105 focus:outline-none sm:min-w-[92px] sm:flex-none sm:px-3 sm:py-2 sm:text-xs sm:leading-normal";
 }
 
 export default function CopyButton({ text }: CopyButtonProps) {
@@ -41,37 +49,29 @@ export default function CopyButton({ text }: CopyButtonProps) {
   }
 
   return (
-    <div className="space-y-1.5 sm:space-y-2">
-      <div className="flex items-center gap-1.5 sm:block">
-        <button
-          type="button"
-          onClick={handleCopy}
-          className={`${getMobileActionClassName()} sm:min-h-11 sm:bg-accent sm:px-4 sm:py-2 sm:text-sm sm:leading-normal sm:text-white sm:hover:bg-blue-700`}
-        >
+    <div className="space-y-2">
+      <div className="flex flex-nowrap items-center justify-center gap-2 rounded-[6px] bg-[linear-gradient(180deg,rgba(10,21,40,0.56)_0%,rgba(7,16,31,0.42)_100%)] px-2.5 py-3 shadow-[0_28px_46px_-36px_rgba(2,6,23,1),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl sm:gap-3 sm:px-4">
+        <button type="button" onClick={handleCopy} className={getActionClassName("neutral")}>
           Copier
         </button>
-        <a
-          href={whatsappHref}
-          target="_blank"
-          rel="noreferrer"
-          className={`${getMobileActionClassName()} sm:hidden`}
-        >
+        <a href={whatsappHref} target="_blank" rel="noreferrer" className={getActionClassName("whatsapp")}>
           WhatsApp
         </a>
-        <a href={smsHref} className={`${getMobileActionClassName()} sm:hidden`}>
+        <a href={smsHref} className={getActionClassName("sms")}>
           SMS
         </a>
       </div>
       {status === "success" ? (
-        <p className="text-xs font-medium text-green-700 sm:text-sm">
+        <p className="text-center text-xs font-medium text-emerald-200 sm:text-sm">
           Réponse copiée
         </p>
       ) : null}
       {status === "error" ? (
-        <p className="text-xs font-medium text-red-700 sm:text-sm">
+        <p className="text-center text-xs font-medium text-rose-200 sm:text-sm">
           Impossible de copier la réponse
         </p>
       ) : null}
     </div>
   );
 }
+

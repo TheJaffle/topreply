@@ -1,14 +1,18 @@
-import type { Prisma } from "@prisma/client";
+﻿import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 type CreateUserProfileInput = Readonly<{
   email: string;
   passwordHash: string;
+  firstName: string;
+  lastName: string;
   displayName?: string | null;
   metier: string;
 }>;
 
 type UpdateUserProfileInput = Readonly<{
+  firstName?: string;
+  lastName?: string;
   displayName?: string | null;
   metier?: string;
   passwordHash?: string;
@@ -18,6 +22,17 @@ export type UserProfileRecord = Prisma.UserProfileGetPayload<Record<string, neve
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
+}
+
+function normalizeNamePart(value: string) {
+  return value.trim();
+}
+
+export function buildDisplayName(firstName: string, lastName: string) {
+  const normalizedFirstName = normalizeNamePart(firstName);
+  const normalizedLastName = normalizeNamePart(lastName);
+
+  return `${normalizedFirstName} ${normalizedLastName}`.trim();
 }
 
 export async function getUserProfileById(id: string) {
@@ -43,15 +58,20 @@ export async function listUserProfiles() {
 }
 
 export function isUserProfileComplete(profile: {
-  displayName: string | null;
+  firstName: string;
+  lastName: string;
   metier: string;
 } | null) {
-  return Boolean(profile?.displayName?.trim() && profile.metier.trim());
+  return Boolean(
+    profile?.firstName.trim() && profile.lastName.trim() && profile.metier.trim()
+  );
 }
 
 export async function createUserProfile({
   email,
   passwordHash,
+  firstName,
+  lastName,
   displayName = null,
   metier
 }: CreateUserProfileInput) {
@@ -59,6 +79,8 @@ export async function createUserProfile({
     data: {
       email: normalizeEmail(email),
       passwordHash,
+      firstName: normalizeNamePart(firstName),
+      lastName: normalizeNamePart(lastName),
       displayName,
       metier
     }
@@ -67,11 +89,15 @@ export async function createUserProfile({
 
 export async function updateUserProfile(
   id: string,
-  { displayName, metier, passwordHash }: UpdateUserProfileInput
+  { firstName, lastName, displayName, metier, passwordHash }: UpdateUserProfileInput
 ) {
   return prisma.userProfile.update({
     where: { id },
     data: {
+      ...(firstName !== undefined
+        ? { firstName: normalizeNamePart(firstName) }
+        : {}),
+      ...(lastName !== undefined ? { lastName: normalizeNamePart(lastName) } : {}),
       ...(displayName !== undefined ? { displayName } : {}),
       ...(metier !== undefined ? { metier } : {}),
       ...(passwordHash !== undefined ? { passwordHash } : {})
